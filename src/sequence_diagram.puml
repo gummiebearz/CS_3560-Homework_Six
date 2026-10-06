@@ -7,29 +7,25 @@ participant "School Staff" as Staff
 participant "Payment Service" as Pay
 participant "Email Service" as Email
 
-Renter -> Website: Choose facility, date, time, event type
-loop
-Website <- Website: Check availability
-alt#Gold #LightBlue Available
-    Website -> Renter: Request contact info
-    Renter -> Website: Enter contact info
-else #Pink Unavailable
-    Website -> Renter: Request to reselect
-    Renter -> Website: Select different date
-end loop
+Renter -> Website: Submit request
+Website -> Website: Check availability
+Website -> Staff: Review request
 
-Staff -> Staff: Review request
-alt#Gold #LightBlue Approved
-    Payment -> Renter: Charge renter
-    Renter -> Pay: Pays
-    alt#Gold #LightBlue Payment succeeds
+alt#Gold #LightBlue approved
+    Staff --> Website: Approve request
+    Website -> Pay: Process payment
+    alt#Gold #LightBlue payment succeeds
         Website -> Website: Save booking
-        Email -> Renter: Send confirmation email
-    else #Pink Payment fails
+        Website -> Email: Send confirmation email
+        Email --> Renter: Confirmation Email
+    else #Pink payment fails
         Website -> Website: Record failure
-        Email -> Renter: Send failure email
-else #Pink Rejected
+        Website -> Email: Send failure email
+        Email --> Renter: Failure Email
+else #Pink rejected
+    Staff --> Website: Reject request
     Website -> Website: Record rejection
-    Email -> Renter: Send rejection email
+    Website -> Email: Send rejection email
+    Email --> Renter: Rejection email
 
 @enduml
