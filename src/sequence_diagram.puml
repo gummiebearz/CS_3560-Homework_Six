@@ -2,30 +2,44 @@
 title Renting School Facility - Sequence Diagram
 
 actor Renter
-participant Website as Website
+participant Website
 participant "School Staff" as Staff
 participant "Payment Service" as Pay
 participant "Email Service" as Email
 
-Renter -> Website: Submit request
+Renter -> Website: Choose facility, date, time, event type
 Website -> Website: Check availability
-Website -> Staff: Review request
+loop not available
+    Website --> Renter: Show not available
+    Renter -> Website: Choose different date
+    Website -> Website: Check availability
+end
+Website --> Renter: Show available
+Website --> Renter: Request contact info
+Renter -> Website: Enter contact info
+Renter -> Website: Submit request
+Website -> Staff: Send review request
+Staff -> Staff: Review request
 
 alt#Gold #LightBlue approved
     Staff --> Website: Approve request
-    Website -> Pay: Process payment
+    Website -> Pay: Charge renter
     alt#Gold #LightBlue payment succeeds
+        Pay --> Website: Payment succeeds
         Website -> Website: Save booking
         Website -> Email: Send confirmation email
-        Email --> Renter: Confirmation Email
+        Email --> Renter: confirmation Email
     else #Pink payment fails
+        Pay --> Website: Payment fails
         Website -> Website: Record failure
         Website -> Email: Send failure email
-        Email --> Renter: Failure Email
+        Email --> Renter: failure Email
+    end
 else #Pink rejected
     Staff --> Website: Reject request
     Website -> Website: Record rejection
     Website -> Email: Send rejection email
-    Email --> Renter: Rejection email
+    Email --> Renter: rejection email
+end
 
 @enduml
