@@ -1,0 +1,35 @@
+@startuml
+title Renting School Facility - Sequence Diagram
+
+actor Renter
+participant Website as Website
+participant "School Staff" as Staff
+participant "Payment Service" as Pay
+participant "Email Service" as Email
+
+Renter -> Website: Choose facility, date, time, event type
+loop
+Website <- Website: Check availability
+alt#Gold #LightBlue Available
+    Website -> Renter: Request contact info
+    Renter -> Website: Enter contact info
+else #Pink Unavailable
+    Website -> Renter: Request to reselect
+    Renter -> Website: Select different date
+end loop
+
+Staff -> Staff: Review request
+alt#Gold #LightBlue Approved
+    Payment -> Renter: Charge renter
+    Renter -> Pay: Pays
+    alt#Gold #LightBlue Payment succeeds
+        Website -> Website: Save booking
+        Email -> Renter: Send confirmation email
+    else #Pink Payment fails
+        Website -> Website: Record failure
+        Email -> Renter: Send failure email
+else #Pink Rejected
+    Website -> Website: Record rejection
+    Email -> Renter: Send rejection email
+
+@enduml
