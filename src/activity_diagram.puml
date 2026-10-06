@@ -1,0 +1,64 @@
+@startuml
+title Renting School Facility - Activity Diagram
+
+'Actors/Swimlanes listed in the following order
+|Renter|
+|Website|
+|School Staff|
+|Payment Service|
+|Email Service|
+
+|Renter|
+start
+:Choose facility, date, time, event type;
+
+|Website|
+:Check availability;
+note right
+  Website checks the selected
+  facility, date, and time
+end note
+while (available?) is ([not available])
+    :Show not available;
+    |Renter|
+    if (try another date?) then ([no])
+        stop
+        note right: Ends if renter declines to reselect
+    else ([yes])
+        :Choose different date;
+    endif
+    |Website|
+    :Check availability;
+endwhile ([available])
+
+|Renter|
+:Enter contact info;
+:Submit request;
+
+|School Staff|
+:Review request;
+if (decision?) then ([rejected])
+    |Website|
+    :Record rejection;
+    |Email Service|
+    :Send rejection email;
+    stop
+else ([approved])
+    |Payment Service|
+    :Charge renter;
+    note left: Only charge after staff approval
+    if (payment?) then ([payment succeeds])
+        |Website|
+        :Save booking;
+        |Email Service|
+        :Send confirmation email;
+        stop
+    else ([payment fails])
+        |Website|
+        :Record failure;
+        |Email Service|
+        :Send failure email;
+        stop
+    endif
+endif
+@enduml
